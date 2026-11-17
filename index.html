@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoNested Web</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:        #07090d;
+            --surface:   #0d1219;
+            --surface-2: #10161f;
+            --border:    #1c2333;
+            --border-lit:#2a3a55;
+            --text:      #c0cfe0;
+            --muted:     #4a6080;
+            --accent:    #00d4aa;
+            --accent-dim:#00a882;
+            --warn:      #f0a040;
+            --error:     #ff5060;
+            --success:   #00d4aa;
+            --blue:      #4a9eff;
+            --flip-orange: #ff7a1a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { background: var(--bg); }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background:
+                radial-gradient(ellipse 900px 500px at 15% -10%, rgba(255,122,26,0.10), transparent 60%),
+                radial-gradient(ellipse 900px 600px at 100% 0%, rgba(0,212,170,0.08), transparent 55%),
+                var(--bg);
+            background-attachment: fixed;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 32px 16px 40px;
+        }
+
+        /* ---- HEADER ---- */
+        header {
+            width: 100%;
+            max-width: 560px;
+            margin-bottom: 30px;
+        }
+        header h1 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+        header h1 span { color: var(--flip-orange); }
+        header p {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 4px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* ---- CARD ---- */
+        .card {
+            width: 100%;
+            max-width: 560px;
+            background: linear-gradient(180deg, var(--surface-2), var(--surface));
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 0 rgba(255,255,255,0.02) inset, 0 12px 32px -20px rgba(0,0,0,0.6);
+        }
+        .card-title {
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ---- MODE TABS ---- */
+        .mode-tabs-card { padding: 6px; }
+        .mode-tabs {
+            display: flex;
+            gap: 4px;
+        }
+        .mode-tab {
+            flex: 1;
+            padding: 12px 14px;
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12.5px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: .2s;
+        }
+        .mode-tab:hover:not(.active) { color: var(--text); background: rgba(255,255,255,0.02); }
+        .mode-tab.active {
+            background: var(--bg);
+            color: #fff;
+            box-shadow: 0 0 0 1px var(--border-lit) inset;
+        }
+
+        /* ---- STEPS ---- */
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            position: relative;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 4px;
+            transition: opacity .25s;
+            position: relative;
+        }
+        .step.locked { opacity: 0.35; }
+
+        /* línea conectora entre los pasos */
+        .steps::before {
+            content: '';
+            position: absolute;
+            left: 21px;
+            top: 40px;
+            bottom: 40px;
+            width: 2px;
+            background: linear-gradient(var(--border-lit), var(--border));
+            z-index: 0;
+        }
+
+        .step-num {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            border: 2px solid var(--border-lit);
+            background: var(--surface);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--muted);
+            flex-shrink: 0;
+            transition: .25s;
+            position: relative;
+            z-index: 1;
+        }
+        .step.done .step-num {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #000;
+            box-shadow: 0 0 16px rgba(0,212,170,0.45);
+        }
+        .step.active .step-num {
+            border-color: var(--flip-orange);
+            color: #fff;
+            box-shadow: 0 0 0 4px rgba(255,122,26,0.12);
+        }
+
+        .step-body { flex: 1; min-width: 0; }
+        .step-label {
+            font-weight: 600;
+            font-size: 15px;
+            color: #fff;
+            margin-bottom: 3px;
+        }
+        .step-sub {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .btn-step {
+            padding: 11px 20px;
+            border-radius: 9px;
+            border: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: .2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .btn-step.green {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 4px 16px -4px rgba(0,212,170,0.5);
+        }
+        .btn-step.green:hover:not(:disabled) { background: #00ffcc; transform: translateY(-1px); }
+        .btn-step.orange {
+            background: var(--flip-orange);
+            color: #000;
+            box-shadow: 0 4px 16px -4px rgba(255,122,26,0.5);
+        }
+        .btn-step.orange:hover:not(:disabled) { background: #ff9a4a; transform: translateY(-1px); }
+        .btn-step.full { width: 100%; }
+        .btn-step:disabled {
+            background: var(--border);
+            color: var(--muted);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .btn-step:active:not(:disabled) { transform: translateY(0); }
+
+        /* ---- MANUAL MODE ---- */
+        .manual-hint {
+            font-size: 13px;
+            color: var(--text);
+            line-height: 1.55;
+            margin-bottom: 14px;
+        }
+        .manual-hint code {
+            color: var(--flip-orange);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+        .manual-textarea {
+            width: 100%;
+            height: 140px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            padding: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            resize: vertical;
+            outline: none;
+            transition: border-color .2s;
+            margin-bottom: 14px;
+        }
+        .manual-textarea:focus { border-color: var(--border-lit); }
+
+        /* ---- TERMINAL ---- */
+        .terminal-frame {
+            background: #020508;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 0 1px rgba(0,212,170,0.03) inset;
+        }
+        .terminal-titlebar {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 14px;
+            background: linear-gradient(180deg, #0c1016, #080b10);
+            border-bottom: 1px solid var(--border);
+        }
+        .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .terminal-dot.red    { background: #ff5f56; }
+        .terminal-dot.yellow { background: #ffbd2e; }
+        .terminal-dot.green  { background: #27c93f; }
+        .terminal-titlebar span {
+            margin-left: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            color: var(--muted);
+            letter-spacing: 0.5px;
+        }
+
+        #terminal {
+            padding: 14px 16px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12.5px;
+            line-height: 1.75;
+            scroll-behavior: smooth;
+        }
+        #terminal::-webkit-scrollbar { width: 5px; }
+        #terminal::-webkit-scrollbar-thumb { background: var(--border-lit); border-radius: 3px; }
+        #terminal::-webkit-scrollbar-track { background: transparent; }
+
+        .t-normal  { color: #5a7a9a; }
+        .t-info    { color: var(--blue); }
+        .t-warn    { color: var(--warn); }
+        .t-success { color: var(--accent); font-weight: 600; }
+        .t-error   { color: var(--error); }
+        .t-key     { color: #fff; font-weight: 700; }
+
+        /* ---- RESULTS ---- */
+        #resultsCard { display: none; }
+        .results-hint {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        .keys-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+        .key-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 11px 14px;
+            transition: border-color .2s;
+        }
+        .key-row:hover { border-color: var(--border-lit); }
+        .key-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 5px;
+            flex-shrink: 0;
+        }
+        .key-badge.A { background: rgba(0,212,170,0.15); color: var(--accent); }
+        .key-badge.B { background: rgba(74,158,255,0.15); color: var(--blue); }
+        .key-sector {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--muted);
+            min-width: 56px;
+        }
+        .key-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+            flex: 1;
+        }
+        .btn-copy {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 5px 11px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            transition: .2s;
+        }
+        .btn-copy:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-copy.copied { border-color: var(--accent); color: var(--accent); }
+
+        /* ---- FOOTER ---- */
+        footer {
+            width: 100%;
+            max-width: 560px;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 10px;
+            padding: 0 4px;
+        }
+        footer a { color: var(--muted); text-decoration: none; }
+        footer a:hover { color: var(--text); }
+
+        /* ---- ANIMATIONS ---- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeIn .3s ease forwards; }
+
+        /* ---- SERIAL WARNING ---- */
+        .serial-warning {
+            background: rgba(240,160,64,0.1);
+            border: 1px solid rgba(240,160,64,0.25);
+            border-radius: 9px;
+            padding: 12px 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--warn);
+            margin-top: 14px;
+            display: none;
+        }
+        .serial-warning.show { display: block; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Auto<span>Nested</span> Web</h1>
+    <p>Flipper Zero · MIFARE Classic Key Recovery</p>
+</header>
+
+<!-- MODE TABS -->
+<div class="card mode-tabs-card">
+    <div class="mode-tabs">
+        <button class="mode-tab active" id="tabCable" data-mode="cable">Cable (USB)</button>
+        <button class="mode-tab" id="tabManual" data-mode="manual">Manual</button>
+    </div>
+</div>
+
+<!-- CABLE FLOW -->
+<div class="card" id="cableFlow">
+    <div class="card-title">// Flujo de trabajo</div>
+    <div class="steps">
+
+        <!-- STEP 1: USB SERIAL -->
+        <div class="step active" id="step1">
+            <div class="step-num" id="step1Num">1</div>
+            <div class="step-body">
+                <div class="step-label">Conectar Flipper por cable</div>
+                <div class="step-sub" id="step1Sub">Web Serial · Chrome / Edge · PC o Android (OTG)</div>
+            </div>
+            <button class="btn-step orange" id="btnConnect">Conectar</button>
+        </div>
+
+        <!-- STEP 2: RECOVER (crack + inject) -->
+        <div class="step locked" id="step2">
+            <div class="step-num" id="step2Num">2</div>
+            <div class="step-body">
+                <div class="step-label">Recuperar llaves</div>
+                <div class="step-sub">Lee, rompe e inyecta las llaves automáticamente</div>
+            </div>
+            <button class="btn-step green" id="btnRecover" disabled>Recuperar</button>
+        </div>
+
+    </div>
+
+    <div class="serial-warning" id="serialWarning">
+        ⚠ Tu navegador no soporta Web Serial. Usa <strong>Chrome o Edge</strong> en escritorio, o Chrome 150+ en Android
+        (con un cable/adaptador USB-OTG). Safari / Firefox de escritorio no son compatibles con esta API.
+    </div>
+</div>
+
+<!-- MANUAL FLOW -->
+<div class="card" id="manualFlow" style="display:none">
+    <div class="card-title">// Modo manual (sin cable)</div>
+    <p class="manual-hint">
+        Abrí el explorador de archivos de la app oficial de Flipper en tu celular, copiá el contenido de
+        <code>/ext/nfc/.nested.log</code> y pegalo acá. Vas a tener que agregar las llaves encontradas
+        al diccionario a mano, desde la misma app.
+    </p>
+    <textarea id="manualLogArea" class="manual-textarea" placeholder="Sec 0 key A cuid aa6ce6c9 nt0 62e5bdcf ..."></textarea>
+    <button class="btn-step green full" id="btnManualRecover">Recuperar llaves</button>
+</div>
+
+<!-- TERMINAL -->
+<div class="card">
+    <div class="card-title">// Terminal</div>
+    <div class="terminal-frame">
+        <div class="terminal-titlebar">
+            <div class="terminal-dot red"></div>
+            <div class="terminal-dot yellow"></div>
+            <div class="terminal-dot green"></div>
+            <span>autonested — bash</span>
+        </div>
+        <div id="terminal">
+            <div class="t-info">[AutoNested Web — listo]</div>
+            <div class="t-normal">[1] Haz el ataque Nested en el Flipper primero (Momentum/OFW)</div>
+            <div class="t-normal">[2] Elegí un modo arriba y seguí los pasos</div>
+        </div>
+    </div>
+</div>
+
+<!-- RESULTS -->
+<div class="card" id="resultsCard">
+    <div class="card-title">// Llaves recuperadas</div>
+    <div class="results-hint" id="resultsHint" style="display:none">
+        Copiá estas llaves y agregalas a mano en <code>mf_classic_dict_user.nfc</code> desde la app oficial.
+    </div>
+    <div class="keys-grid" id="keysGrid"></div>
+</div>
+
+<footer>
+    AutoNested Web · <a href="https://github.com/AloneLiberty/FlipperNested" target="_blank">FlipperNested</a>
+    · Solo para pruebas de seguridad en tarjetas propias
+</footer>
+
+<script>
+// ================================================================
+//  ESTADO GLOBAL
+// ================================================================
+const API_BASE = window.location.origin;
+
+const state = {
+    mode:            'cable',    // 'cable' | 'manual'
+    serverOk:        false,
+    serialConnected: false,
+    serialLink:      null,       // instancia de FlipperSerialLink
+    foundKeys:       [],        // [{sector, type, key}]
+};
+
+// Vendor/Product ID reales del Flipper Zero (placa STM32 WB55), usados también
+// por FlipperNested/bridge.py para autodetectar el puerto por USB.
+const FLIPPER_USB_FILTER = { usbVendorId: 0x0483, usbProductId: 0x5740 };
+
+// ================================================================
+//  REFERENCIAS DOM
+// ================================================================
+const $ = id => document.getElementById(id);
+const btnConnect       = $('btnConnect');
+const btnRecover       = $('btnRecover');
+const btnManualRecover = $('btnManualRecover');
+const terminal         = $('terminal');
+
+// ================================================================
+//  TERMINAL
+// ================================================================
+function log(msg, type = 'normal') {
+    const div = document.createElement('div');
+    div.className = `t-${type} fade-in`;
+    div.textContent = `> ${msg}`;
+    terminal.appendChild(div);
+    terminal.scrollTop = terminal.scrollHeight;
+}
+
+function logKey(sector, type, key) {
+    const div = document.createElement('div');
+    div.className = 'fade-in';
+    div.innerHTML = `<span style="color:#4a6080">> Sector </span>`
+        + `<span style="color:#f0a040">${String(sector).padStart(2,'0')}</span> `
+        + `<span style="color:#4a6080">Key </span>`
+        + `<span style="color:#4a9eff">${type}</span>  `
+        + `<span class="t-key">${key}</span>`;
+    terminal.appendChild(div);
+    terminal.scrollTop = terminal.scrollHeight;
+}
+
+// ================================================================
+//  SELECTOR DE MODO (Cable / Manual)
+// ================================================================
+$('tabCable').addEventListener('click', () => setMode('cable'));
+$('tabManual').addEventListener('click', () => setMode('manual'));
+
+function setMode(mode) {
+    state.mode = mode;
+    $('tabCable').classList.toggle('active', mode === 'cable');
+    $('tabManual').classList.toggle('active', mode === 'manual');
+    $('cableFlow').style.display  = mode === 'cable'  ? '' : 'none';
+    $('manualFlow').style.display = mode === 'manual' ? '' : 'none';
+    $('resultsCard').style.display = 'none';
+    $('resultsHint').style.display = mode === 'manual' ? 'block' : 'none';
+}
+
+// ================================================================
+//  ESTADO DE PASOS UI
+// ================================================================
+function setStepDone(n) {
+    const step = $(`step${n}`);
+    step.classList.remove('locked', 'active');
+    step.classList.add('done');
+    $(`step${n}Num`).textContent = '✓';
+}
+function unlockStep(n) {
+    const step = $(`step${n}`);
+    step.classList.remove('locked');
+    step.classList.add('active');
+}
+
+// ================================================================
+//  PASO 1: CONEXIÓN POR CABLE (Web Serial)
+// ================================================================
+btnConnect.addEventListener('click', async () => {
+    if (!('serial' in navigator)) {
+        $('serialWarning').classList.add('show');
+        log('Web Serial no disponible en este navegador.', 'error');
+        log('Usa Chrome o Edge en escritorio, o Chrome 150+ en Android con cable OTG.', 'warn');
+        return;
+    }
+
+    log('Elegí el puerto del Flipper en el diálogo del navegador...', 'warn');
+    btnConnect.disabled = true;
+    btnConnect.textContent = 'Buscando...';
+
+    try {
+        const port = await navigator.serial.requestPort({ filters: [FLIPPER_USB_FILTER] });
+        port.addEventListener('disconnect', onSerialDisconnect);
+
+        log('Puerto seleccionado · Abriendo conexión serial...', 'warn');
+        state.serialLink = new FlipperSerialLink(port);
+        await state.serialLink.connect();
+        log('CLI del Flipper detectada y lista.', 'success');
+
+        state.serialConnected = true;
+        btnConnect.textContent = '✓ Conectado';
+        btnConnect.style.background = '#1a3a5c';
+        btnConnect.style.color = 'var(--blue)';
+        btnConnect.disabled = false;
+
+        $('step1Sub').textContent = 'Cable USB · CLI conectada';
+        setStepDone(1);
+        unlockStep(2);
+        btnRecover.disabled = false;
+
+        log('¡Flipper conectado! Ya podés recuperar las llaves.', 'success');
+
+    } catch (err) {
+        log(`Fallo la conexión serial: ${err.message}`, 'error');
+        if (err.name === 'NotFoundError') {
+            log('No seleccionaste ningún puerto, o el Flipper no está conectado por USB.', 'warn');
+        }
+        btnConnect.disabled = false;
+        btnConnect.textContent = 'Reintentar';
+        btnConnect.style.background = 'rgba(255,80,96,0.2)';
+        btnConnect.style.color = 'var(--error)';
+    }
+});
+
+function onSerialDisconnect() {
+    log('Se perdió la conexión USB con el Flipper.', 'error');
+    state.serialConnected = false;
+    state.serialLink      = null;
+    btnConnect.textContent = 'Reconectar';
+    btnConnect.disabled = false;
+    btnConnect.style.background = '';
+    btnConnect.style.color = '';
+    btnRecover.disabled = true;
+    $('step1').classList.remove('done');
+    $('step1').classList.add('active');
+    $('step1Num').textContent = '1';
+}
+
+// ================================================================
+//  ENLACE SERIAL REAL: automatiza la CLI de texto del Flipper por USB.
+//  Es la MISMA CLI que FlipperNested/bridge.py usa como paso previo a
+//  "start_rpc_session" (ver bridge.py: lee hasta el prompt ">: ").
+//  Como .nested.log y el diccionario son archivos de texto plano, no
+//  hace falta pasar a modo RPC en protobuf: alcanza con automatizar
+//  "storage read"/"storage write" tal cual se escriben a mano en un
+//  terminal serial, y esperar a que el prompt reaparezca para saber
+//  cuándo terminó cada comando.
+// ================================================================
+const FLIPPER_PROMPT = '>: ';
+
+class FlipperSerialLink {
+    constructor(port) {
+        this.port = port;
+        this.reader = null;
+        this.writer = null;
+        this.buffer = '';
+        this.readLoopPromise = null;
+        this.closed = false;
+    }
+
+    async connect() {
+        await this.port.open({ baudRate: 115200 });
+        this.reader = this.port.readable.getReader();
+        this.writer = this.port.writable.getWriter();
+        this.readLoopPromise = this._readLoop();
+
+        // Ctrl+C + Enter: corta cualquier línea a medio escribir y fuerza
+        // a que la CLI vuelva a imprimir su prompt, sin importar en qué
+        // estado haya quedado una sesión anterior.
+        await this._write('\x03\r');
+        await this._waitForPrompt(5000);
+    }
+
+    async _readLoop() {
+        try {
+            for (;;) {
+                const { value, done } = await this.reader.read();
+                if (done) break;
+                this.buffer += new TextDecoder().decode(value);
+            }
+        } catch (err) {
+            if (!this.closed) console.error('Error leyendo del puerto serial', err);
+        }
+    }
+
+    async _write(text) {
+        await this.writer.write(new TextEncoder().encode(text));
+    }
+
+    async _waitForPrompt(timeoutMs = 10000) {
+        const start = Date.now();
+        while (!this.buffer.includes(FLIPPER_PROMPT)) {
+            if (Date.now() - start > timeoutMs) {
+                throw new Error('Timeout esperando el prompt de la CLI del Flipper');
+            }
+            await new Promise(r => setTimeout(r, 30));
+        }
+        const captured = this.buffer;
+        this.buffer = '';
+        return captured;
+    }
+
+    async readFile(path) {
+        this.buffer = '';
+        await this._write(`storage read ${path}\r`);
+        const raw = await this._waitForPrompt();
+        // storage_cli.c imprime "Size: <N>" antes del contenido (ver storage_cli_read()),
+        // además del eco del comando y la línea del prompt: los tres se descartan.
+        const content = raw.split(/\r?\n/)
+            .filter(line =>
+                !line.includes(`storage read ${path}`) &&
+                !line.includes(FLIPPER_PROMPT.trim()) &&
+                !/^Size:\s*\d+$/.test(line.trim())
+            )
+            .join('\n')
+            .trim();
+        if (/storage error|cannot|failed/i.test(content)) {
+            throw new Error(`El Flipper no pudo leer ${path}: ${content}`);
+        }
+        return content;
+    }
+
+    async writeFile(path, content) {
+        // Borramos el archivo previo para no dejar restos si el nuevo es más corto.
+        this.buffer = '';
+        await this._write(`storage remove ${path}\r`);
+        await this._waitForPrompt().catch(() => {}); // puede no existir todavía, no importa
+
+        this.buffer = '';
+        await this._write(`storage write ${path}\r`);
+        await new Promise(r => setTimeout(r, 200)); // la CLI pasa a modo "recibir bytes crudos"
+
+        const CHUNK = 512; // igual al tamaño de chunk que usa bridge.py por RPC
+        for (let i = 0; i < content.length; i += CHUNK) {
+            await this._write(content.slice(i, i + CHUNK));
+            await new Promise(r => setTimeout(r, 30));
+        }
+        if (!content.endsWith('\n')) await this._write('\n');
+        await new Promise(r => setTimeout(r, 150));
+        await this._write('\x03'); // Ctrl+C: cierra el archivo y vuelve al prompt
+        await this._waitForPrompt();
+    }
+
+    async disconnect() {
+        this.closed = true;
+        try { await this.reader?.cancel(); } catch {}
+        try { this.writer?.releaseLock(); } catch {}
+        try { await this.readLoopPromise; } catch {}
+        try { await this.port.close(); } catch {}
+    }
+}
+
+// ================================================================
+//  ENVÍO AL SERVIDOR PARA CRACKEAR (compartido por ambos modos)
+// ================================================================
+async function runCrack(rawLog) {
+    const response = await fetch(API_BASE + '/crack', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ raw_log: rawLog })
+    });
+    const data = await response.json();
+    if (!response.ok || data.error) {
+        throw new Error(data.error || `HTTP ${response.status}`);
+    }
+    return data;
+}
+
+function showResults(keys) {
+    log(`¡ÉXITO! Se recuperaron ${keys.length} llaves:`, 'success');
+    state.foundKeys = keys;
+    $('keysGrid').innerHTML = '';
+    keys.forEach(k => {
+        logKey(k.sector, k.type, k.key);
+        addKeyToResults(k);
+    });
+    $('resultsCard').style.display = 'block';
+}
+
+// ================================================================
+//  PASO 2 (MODO CABLE): RECUPERAR LLAVES — leer + crackear + inyectar
+// ================================================================
+btnRecover.addEventListener('click', async () => {
+    if (!state.serialConnected) return;
+
+    btnRecover.disabled = true;
+    btnRecover.textContent = 'Trabajando...';
+    state.foundKeys = [];
+    $('resultsCard').style.display = 'none';
+
+    try {
+        if (!state.serverOk) {
+            throw new Error(`No se pudo contactar el servidor Python en ${API_BASE}`);
+        }
+
+        log('Leyendo /ext/nfc/.nested.log por USB...', 'warn');
+        let rawLog;
+        try {
+            rawLog = await state.serialLink.readFile('/ext/nfc/.nested.log');
+            if (!rawLog || rawLog.trim().length === 0) {
+                throw new Error('Archivo vacío o no encontrado');
+            }
+            log(`Archivo leído (${rawLog.length} bytes). Enviando al servidor...`, 'info');
+        } catch (serialErr) {
+            log(`Lectura por USB no disponible: ${serialErr.message}`, 'error');
+            log('Probá el modo "Manual" (arriba) para pegar el log a mano.', 'warn');
+            return;
+        }
+
+        const data = await runCrack(rawLog);
+
+        if (data.keys_found === 0) {
+            log('El servidor procesó el log pero no encontró llaves.', 'warn');
+            log('Puede que se necesite el modo Hardnested o más nonces.', 'warn');
+            return;
+        }
+
+        showResults(data.keys);
+        await injectKeys();
+        setStepDone(2);
+
+    } catch (err) {
+        if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+            log(`Error de red: no se pudo contactar ${API_BASE}`, 'error');
+            log('¿El servidor Python sigue corriendo?', 'warn');
+        } else {
+            log(`Error: ${err.message}`, 'error');
+        }
+    } finally {
+        btnRecover.disabled = false;
+        btnRecover.textContent = 'Recuperar';
+    }
+});
+
+// ================================================================
+//  INYECTAR LLAVES AL FLIPPER (parte final del modo Cable)
+// ================================================================
+async function injectKeys() {
+    if (state.foundKeys.length === 0) return;
+
+    const dictPath = '/ext/nfc/assets/mf_classic_dict_user.nfc';
+    log(`Leyendo diccionario existente: ${dictPath}...`, 'warn');
+
+    let existingDict = '';
+    try {
+        existingDict = await state.serialLink.readFile(dictPath);
+        log(`Diccionario leído (${existingDict.split('\n').filter(l=>l.trim()).length} entradas).`, 'info');
+    } catch {
+        log('Diccionario no encontrado, se creará uno nuevo.', 'warn');
+        existingDict = '';
+    }
+
+    // Filtrar llaves ya existentes
+    const newKeys = state.foundKeys.filter(k => !existingDict.includes(k.key));
+
+    if (newKeys.length === 0) {
+        log('Todas las llaves encontradas ya estaban en el diccionario.', 'warn');
+        return;
+    }
+
+    const appendText = newKeys.map(k => k.key).join('\n');
+    const updatedDict = [existingDict, appendText]
+        .join('\n')
+        .split('\n')
+        .filter(l => l.trim())
+        .join('\n');
+
+    log(`Escribiendo ${newKeys.length} llaves nuevas al diccionario...`, 'warn');
+    try {
+        await state.serialLink.writeFile(dictPath, updatedDict);
+        log(`¡Completado! ${newKeys.length} llaves inyectadas al Flipper.`, 'success');
+    } catch (err) {
+        log(`Error al escribir en el Flipper: ${err.message}`, 'error');
+        log('Fallback: Copia las llaves del cuadro de resultados y agrégalas manualmente.', 'warn');
+    }
+}
+
+// ================================================================
+//  MODO MANUAL: pegar el log a mano, sin cable ni inyección automática
+// ================================================================
+btnManualRecover.addEventListener('click', async () => {
+    const rawLog = $('manualLogArea').value.trim();
+    if (!rawLog) {
+        log('Pegá el contenido del log primero.', 'warn');
+        return;
+    }
+
+    btnManualRecover.disabled = true;
+    btnManualRecover.textContent = 'Trabajando...';
+    state.foundKeys = [];
+    $('resultsCard').style.display = 'none';
+
+    try {
+        if (!state.serverOk) {
+            throw new Error(`No se pudo contactar el servidor Python en ${API_BASE}`);
+        }
+
+        log('Enviando log pegado manualmente al servidor...', 'info');
+        const data = await runCrack(rawLog);
+
+        if (data.keys_found === 0) {
+            log('El servidor procesó el log pero no encontró llaves.', 'warn');
+            log('Puede que se necesite el modo Hardnested o más nonces.', 'warn');
+            return;
+        }
+
+        showResults(data.keys);
+        log('Copiá estas llaves y agregalas a mano en mf_classic_dict_user.nfc desde la app oficial.', 'info');
+
+    } catch (err) {
+        if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+            log(`Error de red: no se pudo contactar ${API_BASE}`, 'error');
+        } else {
+            log(`Error: ${err.message}`, 'error');
+        }
+    } finally {
+        btnManualRecover.disabled = false;
+        btnManualRecover.textContent = 'Recuperar llaves';
+    }
+});
+
+// ================================================================
+//  RESULTADOS: AGREGAR FILA DE LLAVE
+// ================================================================
+function addKeyToResults(k) {
+    const grid = $('keysGrid');
+    const row = document.createElement('div');
+    row.className = 'key-row fade-in';
+    row.innerHTML = `
+        <span class="key-badge ${k.type}">${k.type}</span>
+        <span class="key-sector">Sec ${String(k.sector).padStart(2,'0')}</span>
+        <span class="key-value">${k.key}</span>
+        <button class="btn-copy" data-key="${k.key}">Copiar</button>
+    `;
+    row.querySelector('.btn-copy').addEventListener('click', function() {
+        navigator.clipboard.writeText(this.dataset.key).then(() => {
+            this.textContent = '✓ Copiado';
+            this.classList.add('copied');
+            setTimeout(() => {
+                this.textContent = 'Copiar';
+                this.classList.remove('copied');
+            }, 1800);
+        });
+    });
+    grid.appendChild(row);
+}
+
+// ================================================================
+//  AUTO-VERIFICAR SERVIDOR AL CARGAR (silencioso)
+// ================================================================
+window.addEventListener('load', () => {
+    fetch(API_BASE + '/health', { signal: AbortSignal.timeout(3000) })
+        .then(r => r.json())
+        .then(d => {
+            state.serverOk = d.status === 'ok';
+            if (!state.serverOk) {
+                log('El servidor Python no respondió correctamente.', 'warn');
+            } else if (!d.lib_available) {
+                log('Servidor en línea, pero FlipperNested no está instalado.', 'warn');
+            }
+        })
+        .catch(() => {
+            log(`No se pudo contactar el servidor en ${API_BASE}.`, 'warn');
+            log('¿Está corriendo "python main.py -w"?', 'warn');
+        });
+});
+</script>
+</body>
+</html>

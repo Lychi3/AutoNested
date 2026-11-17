@@ -1,0 +1,41 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+
+# --- Entornos virtuales ---
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# --- Variables de entorno / secretos ---
+.env
+.env.*
+
+# --- Logs / datos capturados del Flipper ---
+*.log
+*.nested.log
+*.nfc
+
+# --- Editores / IDEs ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Sistemas operativos ---
+.DS_Store
+Thumbs.db
+
+# --- Testing / cobertura ---
+.pytest_cache/
+.coverage
+htmlcov/

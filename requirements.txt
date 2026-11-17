@@ -1,0 +1,4 @@
+pyserial>=3.5
+FlipperNested>=2.3.5
+flask>=3.1.0
+flask-cors>=6.0.2
