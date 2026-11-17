@@ -10,8 +10,10 @@ Herramienta para automatizar la recuperación de llaves **MIFARE Classic 1k** a 
 
 1. Lee el log crudo del ataque Nested (`/ext/nfc/.nested.log`) que el Flipper genera.
 2. Lo convierte al formato que espera `FlipperNested`.
-3. Ejecuta un aatque de fuerza bruta sobre los nonces para recuperar las llaves A/B de cada sector.
+3. Ejecuta un ataque de fuerza bruta sobre los nonces para recuperar las llaves A/B de cada sector.
 4. Inyecta automáticamente las llaves nuevas al diccionario del Flipper.
+
+> ⚠️ **Importante**: el ataque Nested necesita que el Flipper ya conozca **al menos una llave** de cualquier sector de la tarjeta (por ejemplo, una llave por defecto detectada automáticamente). Sin eso, los nonces no se pueden crackear.
 
 ## Modos disponibles
 
@@ -34,6 +36,7 @@ Este modo está pensado para dejarlo corriendo (por ejemplo en una Raspberry Pi,
 
 - Python 3.9+
 - Un Flipper Zero (Momentum firmware)
+- Al menos **una llave conocida** de algún sector de la tarjeta (requisito del ataque Nested, no de la herramienta)
 - Dependencias listadas en [`requirements.txt`](requirements.txt)
 
 ## Instalación
