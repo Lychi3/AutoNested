@@ -1,15 +1,17 @@
 # AutoNested
 
-Herramienta para automatizar la recuperación de llaves **MIFARE Classic** a partir de los nonces capturados por un **Flipper Zero** (ataque Nested, firmware Momentum/OFW), usando la librería [FlipperNested](https://github.com/AloneLiberty/FlipperNestedRecovery).
+Herramienta para automatizar la recuperación de llaves **MIFARE Classic 1k** a partir de los nonces capturados por un **Flipper Zero** (ataque Nested, firmware Momentum), usando la librería [FlipperNested](https://github.com/AloneLiberty/FlipperNestedRecovery).
+
+🌐 Hay una demo del modo web disponible en **[autonested.lychi3.me](https://autonested.lychi3.me)**. El servidor **no almacena** en ningún momento las llaves recuperadas: solo las procesa en memoria y las devuelve a tu navegador.
 
 > ⚠️ **Uso exclusivo para pruebas de seguridad sobre tarjetas propias o con autorización explícita.**
 
 ## ¿Qué hace?
 
 1. Lee el log crudo del ataque Nested (`/ext/nfc/.nested.log`) que el Flipper genera.
-2. Lo convierte al formato que espera `FlipperNested` (manifiesto V3).
-3. Ejecuta el criptoanálisis (fuerza bruta sobre los nonces) para recuperar las llaves A/B de cada sector.
-4. Inyecta automáticamente las llaves nuevas al diccionario del Flipper (`mf_classic_dict_user.nfc`).
+2. Lo convierte al formato que espera `FlipperNested`.
+3. Ejecuta un aatque de fuerza bruta sobre los nonces para recuperar las llaves A/B de cada sector.
+4. Inyecta automáticamente las llaves nuevas al diccionario del Flipper.
 
 ## Modos disponibles
 
@@ -17,7 +19,7 @@ Herramienta para automatizar la recuperación de llaves **MIFARE Classic** a par
 
 ### 1. Modo Cable (USB)
 
-Conecta con el Flipper por puerto serie (USB), lee el log, rompe las llaves e inyecta el diccionario automáticamente. Funciona por línea de comandos o desde la interfaz web (**Chrome / Edge en PC, vía Web Serial — no soportado en Android**).
+Conecta con el Flipper por puerto serie (USB), lee el log, rompe las llaves e inyecta el diccionario automáticamente. Funciona por línea de comandos o desde la interfaz web (**Chrome / Edge en PC, vía Web Serial - no soportado en Android**).
 
 ### 2. Modo Web (API + interfaz)
 
@@ -26,16 +28,18 @@ Levanta un servidor Flask con una interfaz web embebida (sin archivos estáticos
 - **Cable (USB)**: solo en PC, con Chrome/Edge, usando Web Serial.
 - **Manual**: pegás a mano el contenido de `.nested.log` (por ejemplo copiado desde la app oficial de Flipper en el celular) y el servidor devuelve las llaves encontradas; después las agregás al diccionario a mano.
 
+Este modo está pensado para dejarlo corriendo (por ejemplo en una Raspberry Pi, un servidor casero o el propio hosting de la demo) y usarlo desde el celular en el modo **Manual** cuando no tenés la PC a mano para conectar el Flipper por cable.
+
 ## Requisitos
 
 - Python 3.9+
-- Un Flipper Zero con el ataque Nested ya ejecutado (Momentum u OFW)
+- Un Flipper Zero (Momentum)
 - Dependencias listadas en [`requirements.txt`](requirements.txt)
 
 ## Instalación
 
 ```bash
-git clone <este-repositorio>
+git clone https://github.com/Lychi3/AutoNested.git
 cd AutoNested
 pip install -r requirements.txt
 ```
@@ -68,7 +72,7 @@ python3 autonested.py -w --listen-port 8080
 python3 autonested.py -w --host 127.0.0.1
 ```
 
-Luego abrí `http://<host>:<puerto>/` en el navegador.
+Luego abre `http://<host>:<puerto>/` en el navegador.
 
 ### Ayuda completa
 
@@ -93,6 +97,6 @@ AutoNested/
 └── README.md
 ```
 
-## Descargo de responsabilidad
+## Disclaimer
 
 Este proyecto se publica con fines educativos y de investigación en seguridad. El autor no se hace responsable del uso indebido de esta herramienta. Usala solo sobre tarjetas y sistemas de tu propiedad o con autorización explícita para realizar pruebas de seguridad.
