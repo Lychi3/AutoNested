@@ -11,9 +11,9 @@ Herramienta para automatizar la recuperación de llaves **MIFARE Classic** a par
 3. Ejecuta el criptoanálisis (fuerza bruta sobre los nonces) para recuperar las llaves A/B de cada sector.
 4. Inyecta automáticamente las llaves nuevas al diccionario del Flipper (`mf_classic_dict_user.nfc`).
 
-## Modos disponibles (`test.py`)
+## Modos disponibles
 
-`test.py` es la versión completa del proyecto, con dos modos de uso:
+`autonested.py` es el único script del proyecto, con dos modos de uso:
 
 ### 1. Modo Cable (USB)
 
@@ -25,8 +25,6 @@ Levanta un servidor Flask con una interfaz web embebida (sin archivos estáticos
 
 - **Cable (USB)**: solo en PC, con Chrome/Edge, usando Web Serial.
 - **Manual**: pegás a mano el contenido de `.nested.log` (por ejemplo copiado desde la app oficial de Flipper en el celular) y el servidor devuelve las llaves encontradas; después las agregás al diccionario a mano.
-
-`main.py` es una versión anterior y más simple, solo con el modo Cable por línea de comandos.
 
 ## Requisitos
 
@@ -48,26 +46,26 @@ pip install -r requirements.txt
 
 ```bash
 # Autodetecta el puerto del Flipper
-python3 test.py
+python3 autonested.py
 
 # Puerto manual
-python3 test.py -p /dev/ttyACM0
+python3 autonested.py -p /dev/ttyACM0
 
 # Archivo de log distinto al default
-python3 test.py -f /ext/nfc/otro.log
+python3 autonested.py -f /ext/nfc/otro.log
 ```
 
 ### Modo Web (API + interfaz)
 
 ```bash
 # Servidor en 0.0.0.0:5000 (accesible desde la LAN)
-python3 test.py -w
+python3 autonested.py -w
 
 # Puerto distinto
-python3 test.py -w --listen-port 8080
+python3 autonested.py -w --listen-port 8080
 
 # Solo accesible en localhost
-python3 test.py -w --host 127.0.0.1
+python3 autonested.py -w --host 127.0.0.1
 ```
 
 Luego abrí `http://<host>:<puerto>/` en el navegador.
@@ -75,7 +73,7 @@ Luego abrí `http://<host>:<puerto>/` en el navegador.
 ### Ayuda completa
 
 ```bash
-python3 test.py -h
+python3 autonested.py -h
 ```
 
 ## Endpoints de la API web
@@ -90,9 +88,8 @@ python3 test.py -h
 
 ```
 AutoNested/
-├── main.py             # Versión CLI simple (solo modo Cable)
-├── test.py             # Versión completa: CLI + servidor web
-├── requirements.txt    # Dependencias Python
+├── autonested.py     # Script principal: CLI + servidor web
+├── requirements.txt  # Dependencias Python
 └── README.md
 ```
 
