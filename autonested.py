@@ -791,7 +791,7 @@ _HTML_TEMPLATE = r"""<!DOCTYPE html>
 <div class="card" id="manualFlow" style="display:none">
     <div class="card-title">// Modo manual (sin cable)</div>
     <p class="manual-hint">
-        Abrí el explorador de archivos de la app oficial de Flipper en tu celular, copiá el contenido de
+        Abre el explorador de archivos de la app oficial de Flipper en tu celular, copiá el contenido de
         <code>/ext/nfc/.nested.log</code> y pegalo acá. Vas a tener que agregar las llaves encontradas
         al diccionario a mano.
     </p>
@@ -811,7 +811,7 @@ _HTML_TEMPLATE = r"""<!DOCTYPE html>
         </div>
         <div id="terminal">
             <div class="t-info">[AutoNested Web — listo]</div>
-            <div class="t-normal">[1] Haz el ataque Nested en el Flipper primero (Momentum/OFW)</div>
+            <div class="t-normal">[1] Haz el ataque Nested en el Flipper primero (Momentum)</div>
             <div class="t-normal">[2] Elegí un modo arriba y seguí los pasos</div>
         </div>
     </div>
@@ -821,7 +821,7 @@ _HTML_TEMPLATE = r"""<!DOCTYPE html>
 <div class="card" id="resultsCard">
     <div class="card-title">// Llaves recuperadas</div>
     <div class="results-hint" id="resultsHint" style="display:none">
-        Copiá estas llaves y agregalas a mano en <code>mf_classic_dict_user.nfc</code> desde la app oficial.
+        Copiá estas llaves y agregalas a mano al flipper.
     </div>
     <div class="keys-grid" id="keysGrid"></div>
 </div>
@@ -1244,7 +1244,7 @@ btnManualRecover.addEventListener('click', async () => {
         }
 
         showResults(data.keys);
-        log('Copiá estas llaves y agregalas a mano en mf_classic_dict_user.nfc desde la app oficial.', 'info');
+        log('Copiá estas llaves y agregalas a mano en el flipper.', 'info');
 
     } catch (err) {
         if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {

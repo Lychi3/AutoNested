@@ -473,7 +473,7 @@
 <div class="card" id="resultsCard">
     <div class="card-title">// Llaves recuperadas</div>
     <div class="results-hint" id="resultsHint" style="display:none">
-        Copiá estas llaves y agregalas a mano en <code>mf_classic_dict_user.nfc</code> desde la app oficial.
+        Copiá estas llaves y agregalas a mano al flipper.
     </div>
     <div class="keys-grid" id="keysGrid"></div>
 </div>
@@ -896,7 +896,7 @@ btnManualRecover.addEventListener('click', async () => {
         }
 
         showResults(data.keys);
-        log('Copiá estas llaves y agregalas a mano en mf_classic_dict_user.nfc desde la app oficial.', 'info');
+        log('Copiá estas llaves y agregalas a mano en el flipper', 'info');
 
     } catch (err) {
         if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
