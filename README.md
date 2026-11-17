@@ -28,12 +28,12 @@ Levanta un servidor Flask con una interfaz web embebida (sin archivos estáticos
 - **Cable (USB)**: solo en PC, con Chrome/Edge, usando Web Serial.
 - **Manual**: pegás a mano el contenido de `.nested.log` (por ejemplo copiado desde la app oficial de Flipper en el celular) y el servidor devuelve las llaves encontradas; después las agregás al diccionario a mano.
 
-Este modo está pensado para dejarlo corriendo (por ejemplo en una Raspberry Pi, un servidor casero o el propio hosting de la demo) y usarlo desde el celular en el modo **Manual** cuando no tenés la PC a mano para conectar el Flipper por cable.
+Este modo está pensado para dejarlo corriendo (por ejemplo en una Raspberry Pi, un servidor casero o el propio hosting de la demo) y usarlo desde el celular en el modo **Manual** cuando no tienes la PC a mano para conectar el Flipper por cable.
 
 ## Requisitos
 
 - Python 3.9+
-- Un Flipper Zero (Momentum)
+- Un Flipper Zero (Momentum firmware)
 - Dependencias listadas en [`requirements.txt`](requirements.txt)
 
 ## Instalación
@@ -79,6 +79,10 @@ Luego abre `http://<host>:<puerto>/` en el navegador.
 ```bash
 python3 autonested.py -h
 ```
+
+## Guía paso a paso
+
+📝 En mi blog hay una guía paso a paso completa, desde escanear la tarjeta con el Flipper hasta agregar las llaves recuperadas a mano en el diccionario: **[próximamente](#)**.
 
 ## Endpoints de la API web
 
