@@ -812,7 +812,7 @@ _HTML_TEMPLATE = r"""<!DOCTYPE html>
         <div id="terminal">
             <div class="t-info">[AutoNested Web — listo]</div>
             <div class="t-normal">[1] Haz el ataque Nested en el Flipper primero (Momentum)</div>
-            <div class="t-normal">[2] Elegí un modo arriba y seguí los pasos</div>
+            <div class="t-normal">[2] Elige un modo arriba y seguí los pasos</div>
         </div>
     </div>
 </div>
@@ -923,7 +923,7 @@ btnConnect.addEventListener('click', async () => {
         return;
     }
 
-    log('Elegí el puerto del Flipper en el diálogo del navegador...', 'warn');
+    log('Elige el puerto del Flipper en el diálogo del navegador...', 'warn');
     btnConnect.disabled = true;
     btnConnect.textContent = 'Buscando...';
 
